@@ -24,7 +24,7 @@ def find_load(reference_number):
             reader = csv.DictReader(file)
             for row in reader:
                 #print(row.reference_number, reference_number)
-                if row["reference_number"] == reference_number:
+                if row["reference_number"][3:] == reference_number:
                     return row
     except FileNotFoundError:
         return None
@@ -57,7 +57,6 @@ def get_load():
     reference_number = request.args.get("reference_number")
     if not reference_number:
         return jsonify({"error": "Reference number is required"}), 400
-    
     load_details = find_load(reference_number)
     if not load_details:
         return jsonify({"error": "Load not found"}), 404
