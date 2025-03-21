@@ -1,7 +1,54 @@
 from flask import Flask, request
 from app import app
+import csv
+from flask import jsonify
 
 @app.route('/')
 def hello_world():
     return 'Hello, World!'
 
+
+
+# Security: API Key Authentication
+VALID_API_KEYS = {
+    "user1": "key_ABC123",
+    "user2": "key_XYZ789",
+    "admin": "key_SUPERSECURE"
+}
+CSV_FILE = "data/loads.csv"  # Path to your CSV file
+
+def find_load(reference_number):
+    """Efficiently searches for a load in the CSV file without loading everything into memory."""
+    try:
+        with open(CSV_FILE, mode='r', newline='', encoding='utf-8') as file:
+            reader = csv.DictReader(file)
+            for row in reader:
+                #print(row.reference_number, reference_number)
+                if row["reference_number"] == reference_number:
+                    return row
+    except FileNotFoundError:
+        return None
+    return None
+
+
+@app.before_request
+def check_api_key():
+    print(request.headers)
+    api_key = request.headers.get("X-API-KEY")
+    print(api_key)
+    if api_key is None:
+        return jsonify({"error": "Missing API key"}), 400
+    if api_key not in VALID_API_KEYS.values():
+        return jsonify({"error": "Unauthorized access"}), 401
+
+
+@app.route("/loads/<reference_number>", methods=["GET"])
+def get_load(reference_number):
+    load_details = find_load(reference_number)
+    if not load_details:
+        return jsonify({"error": "Load not found"}), 404
+    return jsonify(load_details), 200
+
+
+if __name__ == "__main__":
+    app.run() #ssl_context=('cert.pem', 'key.pem'))  # Enforce HTTPS
