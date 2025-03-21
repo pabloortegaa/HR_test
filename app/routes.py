@@ -34,7 +34,7 @@ def find_load(reference_number):
 @app.before_request
 def check_api_key():
     print(request.headers)
-    api_key = request.headers.get("X-API-KEY")
+    api_key = request.headers.get("API-KEY")
     print(api_key)
     if api_key is None:
         return jsonify({"error": "Missing API key"}), 400
@@ -42,12 +42,18 @@ def check_api_key():
         return jsonify({"error": "Unauthorized access"}), 401
 
 
-@app.route("/loads/<reference_number>", methods=["GET"])
-def get_load(reference_number):
+@app.route("/loads", methods=["GET"])
+def get_load():
+    reference_number = request.args.get("reference_number")
+    if not reference_number:
+        return jsonify({"error": "Reference number is required"}), 400
+    
     load_details = find_load(reference_number)
     if not load_details:
         return jsonify({"error": "Load not found"}), 404
+    
     return jsonify(load_details), 200
+
 
 
 if __name__ == "__main__":
