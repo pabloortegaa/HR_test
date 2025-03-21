@@ -30,18 +30,28 @@ def find_load(reference_number):
         return None
     return None
 
-
+'''
 @app.before_request
 def check_api_key():
-    print(request.headers)
-    api_key = request.headers.get("API-KEY")
-    print(api_key)
-    if api_key is None:
+    # Get the Authorization header (e.g., "Bearer key_ABC123")
+    auth_header = request.headers.get("Authorization")
+    print(auth_header)
+    
+    # If no Authorization header is provided, return an error
+    if not auth_header:
         return jsonify({"error": "Missing API key"}), 400
-    if api_key not in VALID_API_KEYS.values():
+    
+    # Extract the API key from the "Bearer" prefix
+    token = auth_header.split(" ")[1] if len(auth_header.split(" ")) > 1 else None
+
+    if not token:
+        return jsonify({"error": "Invalid API key format"}), 400
+    
+    # Validate the API key
+    if token not in VALID_API_KEYS:
         return jsonify({"error": "Unauthorized access"}), 401
 
-
+'''
 @app.route("/loads", methods=["GET"])
 def get_load():
     reference_number = request.args.get("reference_number")
