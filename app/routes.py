@@ -23,8 +23,8 @@ def find_load(reference_number):
         with open(CSV_FILE, mode='r', newline='', encoding='utf-8') as file:
             reader = csv.DictReader(file)
             for row in reader:
-                #print(row.reference_number, reference_number)
-                if row["reference_number"][3:] == int(reference_number):
+                #print(row["reference_number"][3:], type(reference_number))
+                if int(row["reference_number"][3:]) == int(reference_number):
                     return row
     except FileNotFoundError:
         return None
