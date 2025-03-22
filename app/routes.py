@@ -52,9 +52,11 @@ def check_api_key():
         return jsonify({"error": "Unauthorized access"}), 401
 
 '''
-@app.route("/loads", methods=["GET"])
+@app.route("/loads", methods=["POST"])
 def get_load():
-    reference_number = request.args.get("reference_number")
+    # Get the JSON data from the request
+    data = request.get_json()
+    reference_number = data.get("reference_number")
     if not reference_number:
         return jsonify({"error": "Reference number is required"}), 400
     load_details = find_load(reference_number)
