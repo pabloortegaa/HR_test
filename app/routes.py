@@ -24,7 +24,7 @@ def find_load(reference_number):
             reader = csv.DictReader(file)
             for row in reader:
                 #print(row.reference_number, reference_number)
-                if row["reference_number"][3:] == reference_number:
+                if row["reference_number"][3:] == int(reference_number):
                     return row
     except FileNotFoundError:
         return None
