@@ -2,15 +2,34 @@ from flask import Flask, request
 from app import app
 import csv
 from flask import jsonify
+from pymongo import MongoClient
+import os
+from dotenv import load_dotenv
+load_dotenv()
+
+
+# Connect to MongoDB
+mongo_connection_string = os.getenv("MONGO_CONNECTION_STRING")
+mongo_db_name = os.getenv("MONGO_DB_NAME")
+print(mongo_connection_string)
+print(mongo_db_name)
+mongo_collection_name = "happy-robot-api-keys"
+client = MongoClient(mongo_connection_string)
+db = client[mongo_db_name]
+collection = db[mongo_collection_name]
+# Retrieve all the images from the database
+cursor = collection.find({})
+
+print("API keys:")
+for document in cursor:
+    print(document["key"])
+
+
+CSV_FILE = "data/loads.csv"  # Path to your CSV file
 
 @app.route('/')
 def hello_world():
     return 'Hello, World!'
-
-
-API_KEY = "prueba"
-
-CSV_FILE = "data/loads.csv"  # Path to your CSV file
 
 def find_load(reference_number):
     """Efficiently searches for a load in the CSV file without loading everything into memory."""
@@ -32,7 +51,10 @@ def authenticate():
     if not auth_header or not auth_header.startswith("Bearer "):
         return False
     provided_key = auth_header.split(" ")[1]
-    return provided_key == API_KEY
+    # Check if the provided key is in the database
+    if not collection.find_one({"key": provided_key}):
+        return False
+    return True
 
 @app.route("/loads", methods=["GET"])
 def get_load():
@@ -46,7 +68,7 @@ def get_load():
         return jsonify({"error": "Reference number is required"}), 400
     load_details = find_load(reference_number)
     if not load_details:
-        return jsonify({"error": "Load not found"}), 404
+        return jsonify({"error": "Load not found."}), 404
     
     return jsonify(load_details), 200
 
