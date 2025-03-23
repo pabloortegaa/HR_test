@@ -8,6 +8,7 @@ def hello_world():
     return 'Hello, World!'
 
 
+API_KEY = "prueba"
 
 CSV_FILE = "data/loads.csv"  # Path to your CSV file
 
@@ -25,8 +26,19 @@ def find_load(reference_number):
     return None
 
 
+def authenticate():
+    """Check if the request has a valid API key."""
+    auth_header = request.headers.get("Authorization")
+    if not auth_header or not auth_header.startswith("Bearer "):
+        return False
+    provided_key = auth_header.split(" ")[1]
+    return provided_key == API_KEY
+
 @app.route("/loads", methods=["GET"])
 def get_load():
+    # Check if the request is authenticated
+    if not authenticate():
+        return jsonify({"error": "Unauthorized"}), 401
     # Get the JSON data from the request
     data = request.get_json()
     reference_number = data.get("reference_number")
