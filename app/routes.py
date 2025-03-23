@@ -12,8 +12,6 @@ load_dotenv()
 # Connect to MongoDB
 mongo_connection_string = os.getenv("MONGO_CONNECTION_STRING")
 mongo_db_name = os.getenv("MONGO_DB_NAME")
-print(mongo_connection_string)
-print(mongo_db_name)
 mongo_collection_name = "happy-robot-api-keys"
 client = MongoClient(mongo_connection_string)
 db = client[mongo_db_name]
@@ -26,7 +24,7 @@ CSV_FILE = "data/loads.csv"  # Path to your CSV file
 
 @app.route('/')
 def hello_world():
-    return 'Hello, World!'
+    return 'Hello happy robotsss'
 
 def find_load(reference_number):
     """Efficiently searches for a load in the CSV file without loading everything into memory."""
@@ -74,3 +72,4 @@ def get_load():
 
 if __name__ == "__main__":
     app.run() 
+
