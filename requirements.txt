@@ -2,3 +2,4 @@ flask
 gunicorn
 Flask-Cors==3.0.10
 pymongo
+python-dotenv
