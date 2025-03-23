@@ -10,8 +10,8 @@ load_dotenv()
 
 
 # Connect to MongoDB
-mongo_connection_string = 'mongodb+srv://itrash:hey123@itrasgdb.yltae.mongodb.net/' #os.getenv("MONGO_CONNECTION_STRING")
-mongo_db_name = 'ItrashDB' #os.getenv("MONGO_DB_NAME")
+mongo_connection_string = os.getenv("MONGO_CONNECTION_STRING")
+mongo_db_name = os.getenv("MONGO_DB_NAME")
 mongo_collection_name = "happy-robot-api-keys"
 client = MongoClient(mongo_connection_string)
 db = client[mongo_db_name]
