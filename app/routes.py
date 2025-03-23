@@ -5,6 +5,7 @@ from flask import jsonify
 from pymongo import MongoClient
 import os
 from dotenv import load_dotenv
+import hashlib
 load_dotenv()
 
 
@@ -19,10 +20,6 @@ db = client[mongo_db_name]
 collection = db[mongo_collection_name]
 # Retrieve all the images from the database
 cursor = collection.find({})
-
-print("API keys:")
-for document in cursor:
-    print(document["key"])
 
 
 CSV_FILE = "data/loads.csv"  # Path to your CSV file
@@ -51,8 +48,9 @@ def authenticate():
     if not auth_header or not auth_header.startswith("Bearer "):
         return False
     provided_key = auth_header.split(" ")[1]
+    hash_provided_key = hashlib.sha256(provided_key.encode()).hexdigest() #hashed key
     # Check if the provided key is in the database
-    if not collection.find_one({"key": provided_key}):
+    if not collection.find_one({"key": hash_provided_key}):
         return False
     return True
 
