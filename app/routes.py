@@ -27,7 +27,7 @@ def hello_world():
     return 'Hello happy robotsss'
 
 def find_load(reference_number):
-    """Efficiently searches for a load in the CSV file without loading everything into memory."""
+    """Efficiently searches for a load in the CSV file"""
     try:
         with open(CSV_FILE, mode='r', newline='', encoding='utf-8') as file:
             reader = csv.DictReader(file)
@@ -54,6 +54,7 @@ def authenticate():
 
 @app.route("/loads", methods=["GET"])
 def get_load():
+    """Get a load by reference number."""
     # Check if the request is authenticated
     if not authenticate():
         return jsonify({"error": "Unauthorized"}), 401

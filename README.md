@@ -37,7 +37,7 @@ If you prefer using the command line, you can use cURL to make the API request. 
 curl -X GET https://robothappy-d5e4eyaafhf5dyct.canadacentral-01.azurewebsites.net/loads \
      -H "Authorization: Bearer YOUR_API_KEY" \
      -H "Content-Type: application/json" \
-     -d '{"reference_number": "ABC1234"}'
+     -d '{"reference_number": "12345"}'
 
 ```
 
