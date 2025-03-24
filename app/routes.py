@@ -104,7 +104,7 @@ def obtener_datos_carrier():
                     }
                 }
             }
-        ), 404
+        ), 200
 
         elif response_fmcsa['content']["carrier"]['allowedToOperate'] == "Y": # if the carrier is allowed to operate
             legal_name = response_fmcsa['content']["carrier"]['legalName']
