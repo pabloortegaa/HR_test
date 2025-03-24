@@ -90,11 +90,52 @@ def obtener_datos_carrier():
     # Check if the carrier is allowed to operate
     if response_fmcsa.status_code == 200:
         if response_fmcsa['content']["carrier"]['allowedToOperate'] == "Y":
-            return jsonify({"message": "Carrier is allowed to operate."}), 200
+            legal_name = response_fmcsa['content']["carrier"]['legalName']
+            return jsonify(
+                {
+                "carrier":{
+                "legal_name": legal_name,
+                "allowed_to_operate": True
+            },
+            "next_steps": {
+                "1" : f"Confirm you found the right carrier name. Ask user exactly this: '{legal_name}?'. Then wait for user to respond." ,
+                "2" : {
+                "a" : f"If user confirms: move on to finding available loads, MAKE SURE you do not give them load information until you have verified they work for the carrier '{legal_name}'.",
+                "b": "If user denies: first, you must ask the user to repeat the name of the carrier they work for ('I'm sorry, I didn't quite catch that. What's the name of the carrier you work for?'). Wait for the user to provide the name again and check if it matches the carrier name you have.",
+                "c": "If you still cannot verify the carrier name, ask the user for their MC number ('I'm sorry, what's that MC number again?'). Wait for user to provide number again. Then search for the carrier again with new number the caller provides."
+            }}
+            }) , 200
         else:
-            return jsonify({"message": "Carrier is not allowed to operate."}), 200
+            return jsonify(
+            {
+                "carrier": {
+                    "allowed_to_operate": False
+                },
+                "message": "Carrier is not allowed to operate.",
+                "next_steps": {
+                    "1": "Inform the user that this carrier is not allowed to operate.",
+                    "2": {
+                        "a": "Politely let the user know that they will need to verify with FMCSA why their carrier is restricted.",
+                        "b": "If the user insists, offer to check another carrier by asking for a different MC number.",
+                        "c": "If the user cannot provide another MC number, suggest they contact FMCSA directly for more details."
+                    }
+                }
+            }
+        ), 200
     else:
-        return jsonify({"error": "Carrier not found."}), 404
+        return jsonify(
+        {
+            "error": "Carrier not found.",
+            "next_steps": {
+                "1": "Inform the user that no carrier was found under the given MC  number.",
+                "2": {
+                    "a": "Ask the user to repeat the MC / DOT number to ensure it was entered correctly.",
+                    "b": "If the user provides a new number, attempt to search for the carrier again.",
+                    "c": "If no carrier is still found, suggest the user verify their carrier information with FMCSA."
+                }
+            }
+        }
+    ), 404
 
     
 
