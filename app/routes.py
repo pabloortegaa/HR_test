@@ -86,9 +86,10 @@ def obtener_datos_carrier():
         return jsonify({"error": "MC number is required"}), 400
     # Make a request to the FMCSA API
     url = f"https://mobile.fmcsa.dot.gov/qc/services/carriers/{mc_number}?webKey={web_key}"
-    response_fmcsa = requests.get(url).json()
+    response_fmcsa = requests.get(url)
     # Check if the carrier is allowed to operate
     if response_fmcsa.status_code == 200:
+        response_fmcsa = response_fmcsa.json()
         if response_fmcsa['content']["carrier"]['allowedToOperate'] == "Y":
             legal_name = response_fmcsa['content']["carrier"]['legalName']
             return jsonify(
