@@ -6,6 +6,7 @@ from pymongo import MongoClient
 import os
 from dotenv import load_dotenv
 import hashlib
+import requests
 load_dotenv()
 
 
@@ -17,7 +18,9 @@ client = MongoClient(mongo_connection_string)
 db = client[mongo_db_name]
 collection = db[mongo_collection_name]
 # Retrieve all the images from the database
-cursor = collection.find({})
+#cursor = collection.find({})
+#FMCSA API key
+web_key = os.getenv("FMCSA_WEB_KEY")
 
 
 CSV_FILE = "data/loads.csv"  # Path to your CSV file
@@ -68,6 +71,32 @@ def get_load():
         return jsonify({"error": "Load not found."}), 404
     
     return jsonify(load_details), 200
+
+
+@app.route("/verify_carrier", methods=["POST"])
+def obtener_datos_carrier():
+    """Verify a carrier by MC number."""
+    # Check if the request is authenticated
+    if not authenticate():
+        return jsonify({"error": "Unauthorized"}), 401
+    # Get the JSON data from the request
+    data = request.get_json()
+    mc_number = data.get("mc_number")
+    if not mc_number:
+        return jsonify({"error": "MC number is required"}), 400
+    # Make a request to the FMCSA API
+    url = f"https://mobile.fmcsa.dot.gov/qc/services/carriers/{mc_number}?webKey={web_key}"
+    response_fmcsa = requests.get(url)
+    # Check if the carrier is allowed to operate
+    if response_fmcsa.status_code == 200:
+        if response_fmcsa['content']["carrier"]['allowedToOperate'] == "Y":
+            return jsonify({"message": "Carrier is allowed to operate."}), 200
+        else:
+            return jsonify({"message": "Carrier is not allowed to operate."}), 200
+    else:
+        return jsonify({"error": "Carrier not found."}), 404
+
+    
 
 
 
