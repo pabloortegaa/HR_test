@@ -90,7 +90,23 @@ def obtener_datos_carrier():
     # Check if the carrier is allowed to operate
     if response_fmcsa.status_code == 200:
         response_fmcsa = response_fmcsa.json()
-        if response_fmcsa['content']["carrier"]['allowedToOperate'] == "Y":
+        # if response_fmcsa['content']['carrier'] exists
+        if response_fmcsa['content'] is None or response_fmcsa['content'] == "null": # if the carrier is not found
+            return jsonify(
+            {
+                "error": "Carrier not found.",
+                "next_steps": {
+                    "1": "Inform the user that no carrier was found under the given MC  number.",
+                    "2": {
+                        "a": "Ask the user to repeat the MC / DOT number to ensure it was entered correctly.",
+                        "b": "If the user provides a new number, attempt to search for the carrier again.",
+                        "c": "If no carrier is still found, suggest the user verify their carrier information with FMCSA."
+                    }
+                }
+            }
+        ), 404
+
+        elif response_fmcsa['content']["carrier"]['allowedToOperate'] == "Y": # if the carrier is allowed to operate
             legal_name = response_fmcsa['content']["carrier"]['legalName']
             return jsonify(
                 {
@@ -106,7 +122,7 @@ def obtener_datos_carrier():
                 "c": "If you still cannot verify the carrier name, ask the user for their MC number ('I'm sorry, what's that MC number again?'). Wait for user to provide number again. Then search for the carrier again with new number the caller provides."
             }}
             }) , 200
-        else:
+        else: # if the carrier is not allowed to operate
             return jsonify(
             {
                 "carrier": {
@@ -123,6 +139,7 @@ def obtener_datos_carrier():
                 }
             }
         ), 200
+    '''
     else:
         return jsonify(
         {
@@ -138,7 +155,7 @@ def obtener_datos_carrier():
         }
     ), 404
 
-    
+    '''
 
 
 
